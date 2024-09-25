@@ -1,57 +1,27 @@
-from flask import Flask, request, jsonify
-import os
-import librosa
 import numpy as np
+import librosa
+import pickle
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-VOICE_FOLDER = "voices"  # Folder where stored audio files are kept
+# Load the trained model
+with open('models/speaker_model.pkl', 'rb') as f:
+    model = pickle.load(f)
 
-# Function to extract features (MFCC) from audio
-def extract_features(file_path):
-    y, sr = librosa.load(file_path, sr=None)
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-    return np.mean(mfccs.T, axis=0)
+# Real-time audio processing route
+@app.route('/process_audio', methods=['POST'])
+def process_audio():
+    audio_data = np.array(request.json['audio'])
 
-# Function to compare two audio features
-def compare_audio_features(features1, features2):
-    return np.linalg.norm(features1 - features2)
+    # Feature extraction using MFCC
+    mfccs = librosa.feature.mfcc(y=audio_data, sr=16000, n_mfcc=13)
+    mfccs = np.mean(mfccs.T, axis=0)  # Average the MFCC features
 
-# API to recognize the speaker
-@app.route('/recognize', methods=['POST'])
-def recognize():
-    if 'audio' not in request.files:
-        return jsonify({"error": "No audio file found"}), 400
+    # Predict the speaker based on the extracted features
+    speaker = model.predict([mfccs])[0]
 
-    audio_file = request.files['audio']
-    audio_path = os.path.join("temp", "audio.wav")
-    audio_file.save(audio_path)
-
-    # Extract features from the uploaded audio
-    uploaded_features = extract_features(audio_path)
-
-    # Compare with all stored voices
-    best_match = None
-    smallest_distance = float('inf')
-
-    for file_name in os.listdir(VOICE_FOLDER):
-        if file_name.endswith(".wav"):
-            stored_audio_path = os.path.join(VOICE_FOLDER, file_name)
-            stored_features = extract_features(stored_audio_path)
-
-            distance = compare_audio_features(uploaded_features, stored_features)
-            if distance < smallest_distance:
-                smallest_distance = distance
-                best_match = file_name.split('.')[0]  # Get speaker name from file name
-
-    os.remove(audio_path)  # Clean up temporary file
-
-    if best_match:
-        return jsonify({"speaker": best_match})
-    else:
-        return jsonify({"speaker": "Unknown"})
+    return jsonify({'speaker': speaker})
 
 if __name__ == '__main__':
-    if not os.path.exists("temp"):
-        os.makedirs("temp")
     app.run(debug=True)
