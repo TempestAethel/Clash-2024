@@ -8,8 +8,11 @@
 <body>
   <h1>Real-time Speaker Identification</h1>
   <p id="speaker-id">Predicted Speaker: None</p>
-  
-  <audio id="audio" autoplay></audio>
-  <script src="{{ url_for('static', filename='main.js') }}"></script>
+
+  <!-- Button to start the audio processing -->
+  <button onclick="startRecording()">Start Recording</button>
+
+  <!-- Include the JavaScript file -->
+  <script src="main.js"></script>
 </body>
 </html>
