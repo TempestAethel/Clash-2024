@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Recognition</title>
+</head>
+<body>
+
+  <h1>Real-time Voice Recognition</h1>
+  <button id="start-recording">Start Recording</button>
+  <p id="status">Press the button and speak.</p>
+  <p id="result">Transcript: </p>
+
+  <script>
+    const startButton = document.getElementById('start-recording');
+    const resultElement = document.getElementById('result');
+    const statusElement = document.getElementById('status');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = true; // Continue recognition until stopped
+    recognition.interimResults = false; // Only show final results
+    recognition.lang = 'en-US'; // Set the language
+
+    startButton.addEventListener('click', () => {
+      recognition.start();
+      statusElement.textContent = 'Recording...';
+    });
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[event.resultIndex][0].transcript;
+      resultElement.textContent = 'Transcript: ' + transcript;
+      // Here you could also send the transcript to your backend for further processing
+    };
+
+    recognition.onerror = (event) => {
+      statusElement.textContent = 'Error occurred: ' + event.error;
+    };
+
+    recognition.onend = () => {
+      statusElement.textContent = 'Stopped Recording.';
+    };
+  </script>
+</body>
+</html>
