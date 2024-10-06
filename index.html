@@ -17,7 +17,6 @@
         }
         .board {
             display: grid;
-            grid-template-columns: repeat(4, 100px);
             grid-gap: 10px;
             margin-bottom: 20px;
         }
@@ -36,19 +35,30 @@
         .score {
             font-size: 24px;
         }
+        #size-select {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+    <select id="size-select">
+        <option value="4">4x4</option>
+        <option value="6">6x6</option>
+    </select>
     <div class="score">Score: <span id="score">0</span></div>
     <div class="board" id="board"></div>
     <script>
         const boardElement = document.getElementById('board');
         const scoreElement = document.getElementById('score');
+        const sizeSelect = document.getElementById('size-select');
         let score = 0;
-        const boardSize = 4;
-        let board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+        let boardSize = parseInt(sizeSelect.value);
+        let board;
 
         function initGame() {
+            boardSize = parseInt(sizeSelect.value);
+            board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+            score = 0;
             addRandomTile();
             addRandomTile();
             render();
@@ -71,6 +81,7 @@
 
         function render() {
             boardElement.innerHTML = '';
+            boardElement.style.gridTemplateColumns = `repeat(${boardSize}, 100px)`;
             board.forEach(row => {
                 row.forEach(value => {
                     const tile = document.createElement('div');
@@ -83,99 +94,93 @@
             scoreElement.textContent = score;
         }
 
-        function moveLeft() {
+        function mergeTiles(row) {
             let moved = false;
             for (let r = 0; r < boardSize; r++) {
-                let row = board[r].filter(value => value); // Remove zeros
-                for (let c = 0; c < row.length - 1; c++) {
-                    if (row[c] === row[c + 1]) {
-                        row[c] *= 2;
-                        score += row[c];
-                        row[c + 1] = 0;
-                        moved = true;
+                let newRow = row[r].filter(value => value); // Remove zeros
+                for (let c = 0; c < newRow.length - 1; c++) {
+                    if (newRow[c] === newRow[c + 1]) {
+                        newRow[c] *= 2;
+                        score += newRow[c];
+                        newRow[c + 1] = 0;
                     }
                 }
-                row = row.filter(value => value); // Remove zeros again
-                while (row.length < boardSize) {
-                    row.push(0); // Fill with zeros
+                newRow = newRow.filter(value => value); // Remove zeros again
+                while (newRow.length < boardSize) {
+                    newRow.push(0); // Fill with zeros
                 }
-                if (JSON.stringify(board[r]) !== JSON.stringify(row)) {
+                if (JSON.stringify(board[r]) !== JSON.stringify(newRow)) {
                     moved = true;
-                    board[r] = row;
+                    board[r] = newRow;
                 }
+            }
+            return moved;
+        }
+
+        function move(direction) {
+            let moved = false;
+            if (direction === 'left') {
+                moved = mergeTiles(board);
+            } else if (direction === 'right') {
+                for (let r = 0; r < boardSize; r++) {
+                    board[r] = board[r].reverse();
+                }
+                moved = mergeTiles(board);
+                for (let r = 0; r < boardSize; r++) {
+                    board[r] = board[r].reverse();
+                }
+            } else if (direction === 'up') {
+                for (let c = 0; c < boardSize; c++) {
+                    const column = [];
+                    for (let r = 0; r < boardSize; r++) {
+                        if (board[r][c] !== 0) column.push(board[r][c]);
+                    }
+                    let newColumn = column.filter(value => value);
+                    for (let r = 0; r < newColumn.length - 1; r++) {
+                        if (newColumn[r] === newColumn[r + 1]) {
+                            newColumn[r] *= 2;
+                            score += newColumn[r];
+                            newColumn[r + 1] = 0;
+                        }
+                    }
+                    newColumn = newColumn.filter(value => value);
+                    while (newColumn.length < boardSize) {
+                        newColumn.push(0); // Fill with zeros
+                    }
+                    for (let r = 0; r < boardSize; r++) {
+                        board[r][c] = newColumn[r];
+                    }
+                }
+                moved = true;
+            } else if (direction === 'down') {
+                for (let c = 0; c < boardSize; c++) {
+                    const column = [];
+                    for (let r = 0; r < boardSize; r++) {
+                        if (board[r][c] !== 0) column.push(board[r][c]);
+                    }
+                    let newColumn = column.filter(value => value).reverse();
+                    for (let r = 0; r < newColumn.length - 1; r++) {
+                        if (newColumn[r] === newColumn[r + 1]) {
+                            newColumn[r] *= 2;
+                            score += newColumn[r];
+                            newColumn[r + 1] = 0;
+                        }
+                    }
+                    newColumn = newColumn.filter(value => value).reverse();
+                    while (newColumn.length < boardSize) {
+                        newColumn.unshift(0); // Fill with zeros
+                    }
+                    for (let r = 0; r < boardSize; r++) {
+                        board[r][c] = newColumn[r];
+                    }
+                }
+                moved = true;
             }
             if (moved) {
                 addRandomTile();
+                render();
+                checkGameOver();
             }
-            render();
-        }
-
-        function moveRight() {
-            // Similar logic to moveLeft, but reverse the row
-            for (let r = 0; r < boardSize; r++) {
-                let row = board[r].filter(value => value).reverse(); // Remove zeros and reverse
-                for (let c = 0; c < row.length - 1; c++) {
-                    if (row[c] === row[c + 1]) {
-                        row[c] *= 2;
-                        score += row[c];
-                        row[c + 1] = 0;
-                    }
-                }
-                row = row.filter(value => value).reverse(); // Remove zeros and reverse back
-                while (row.length < boardSize) {
-                    row.unshift(0); // Fill with zeros
-                }
-                board[r] = row;
-            }
-            render();
-        }
-
-        function moveUp() {
-            for (let c = 0; c < boardSize; c++) {
-                let column = [];
-                for (let r = 0; r < boardSize; r++) {
-                    if (board[r][c] !== 0) column.push(board[r][c]);
-                }
-                for (let r = 0; r < column.length - 1; r++) {
-                    if (column[r] === column[r + 1]) {
-                        column[r] *= 2;
-                        score += column[r];
-                        column[r + 1] = 0;
-                    }
-                }
-                column = column.filter(value => value);
-                while (column.length < boardSize) {
-                    column.push(0); // Fill with zeros
-                }
-                for (let r = 0; r < boardSize; r++) {
-                    board[r][c] = column[r];
-                }
-            }
-            render();
-        }
-
-        function moveDown() {
-            for (let c = 0; c < boardSize; c++) {
-                let column = [];
-                for (let r = 0; r < boardSize; r++) {
-                    if (board[r][c] !== 0) column.push(board[r][c]);
-                }
-                for (let r = 0; r < column.length - 1; r++) {
-                    if (column[r] === column[r + 1]) {
-                        column[r] *= 2;
-                        score += column[r];
-                        column[r + 1] = 0;
-                    }
-                }
-                column = column.filter(value => value);
-                while (column.length < boardSize) {
-                    column.unshift(0); // Fill with zeros
-                }
-                for (let r = 0; r < boardSize; r++) {
-                    board[r][c] = column[r];
-                }
-            }
-            render();
         }
 
         function checkGameOver() {
@@ -195,20 +200,20 @@
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowLeft':
-                    moveLeft();
-                    checkGameOver();
+                case 'a':
+                    move('left');
                     break;
                 case 'ArrowRight':
-                    moveRight();
-                    checkGameOver();
+                case 'd':
+                    move('right');
                     break;
                 case 'ArrowUp':
-                    moveUp();
-                    checkGameOver();
+                case 'w':
+                    move('up');
                     break;
                 case 'ArrowDown':
-                    moveDown();
-                    checkGameOver();
+                case 's':
+                    move('down');
                     break;
             }
         });
@@ -231,19 +236,21 @@
 
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 if (deltaX > 0) {
-                    moveRight();
+                    move('right');
                 } else {
-                    moveLeft();
+                    move('left');
                 }
             } else {
                 if (deltaY > 0) {
-                    moveDown();
+                    move('down');
                 } else {
-                    moveUp();
+                    move('up');
                 }
             }
             checkGameOver();
         });
+
+        sizeSelect.addEventListener('change', initGame);
 
         initGame();
     </script>
