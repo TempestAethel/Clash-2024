@@ -126,17 +126,16 @@ function move(direction) {
                     newColumn[r + 1] = 0;
                 }
             }
-            newColumn = newColumn.filter(value => value);
+            newColumn = newColumn.filter(value => value).reverse();
             while (newColumn.length < boardSize) {
-                newColumn.push(0); // Fill with zeros
+                newColumn.unshift(0); // Fill with zeros
             }
             for (let r = 0; r < boardSize; r++) {
-                board[r][c] = newColumn[boardSize - 1 - r];
+                board[r][c] = newColumn[r];
             }
         }
         moved = true;
     }
-
     if (moved) {
         addRandomTile();
         render();
@@ -199,8 +198,7 @@ function resetGame() {
     game.classList.remove('active');
     score = 0; // Reset the score for the new game
     scoreElement.textContent = score;
-    boardElement.innerHTML = ''; // Clear the board
-    initGame(); // Re-initialize the game state
+    highScoreElement.textContent = highScore; // Keep the high score visible
 }
 
 document.addEventListener('keydown', (e) => {
