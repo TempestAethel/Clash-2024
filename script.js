@@ -1,106 +1,300 @@
-body {
-    background: linear-gradient(to bottom, #0d1b2a, #1b2631, #1c3f72);
-    color: #ffffff;
-    font-family: 'Arial', sans-serif;
-    overflow: hidden;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+let boardSize = 4; // Default board size
+let board = [];
+let score = 0;
+let highScore = 0;
+
+const menu = document.getElementById('menu');
+const game = document.getElementById('game');
+const boardElement = document.getElementById('board');
+const scoreElement = document.getElementById('score');
+const highScoreElement = document.getElementById('high-score');
+const playButton = document.getElementById('play-button');
+const resetButton = document.getElementById('reset-button');
+const sizeSelect = document.getElementById('size-select');
+
+function initGame() {
+    board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
+    score = 0;
+    scoreElement.textContent = score;
+    render();
+    addRandomTile();
+    addRandomTile();
 }
 
-h1 {
-    text-align: center;
-    margin: 20px 0;
-    font-size: 36px;
+function addRandomTile() {
+    const emptyTiles = [];
+    for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+            if (board[r][c] === 0) {
+                emptyTiles.push({ r, c });
+            }
+        }
+    }
+
+    if (emptyTiles.length === 0) return; // No empty tiles available
+
+    const { r, c } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
+    board[r][c] = Math.random() < 0.9 ? 2 : 4; // 90% chance of 2, 10% chance of 4
 }
 
-.menu, .game {
-    display: none;
-    flex-direction: column;
-    align-items: center;
+function render() {
+    boardElement.innerHTML = '';
+    board.forEach(row => {
+        row.forEach(value => {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.textContent = value !== 0 ? value : '';
+            tile.style.backgroundColor = getTileColor(value);
+            boardElement.appendChild(tile);
+        });
+    });
 }
 
-.menu.active, .game.active {
-    display: flex;
+function getTileColor(value) {
+    const colors = {
+        2: '#eee4da',
+        4: '#ede0c8',
+        8: '#f2b179',
+        16: '#f59563',
+        32: '#f67c5f',
+        64: '#f67c5f',
+        128: '#f9f86d',
+        256: '#f9f86d',
+        512: '#e6df73',
+        1024: '#e6df73',
+        2048: '#edc22e',
+        default: '#3c3a32'
+    };
+    return colors[value] || colors.default;
 }
 
-#size-select {
-    margin: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;
-    font-size: 16px;
-}
+function move(direction) {
+    let moved = false;
+    switch (direction) {
+        case 'left':
+            for (let r = 0; r < boardSize; r++) {
+                const newRow = board[r].filter(num => num !== 0);
+                const mergedRow = [];
+                for (let c = 0; c < newRow.length; c++) {
+                    if (newRow[c] === newRow[c + 1]) {
+                        mergedRow.push(newRow[c] * 2);
+                        score += newRow[c] * 2;
+                        c++;
+                    } else {
+                        mergedRow.push(newRow[c]);
+                    }
+                }
+                while (mergedRow.length < boardSize) mergedRow.push(0);
+                for (let c = 0; c < boardSize; c++) {
+                    if (board[r][c] !== mergedRow[c]) {
+                        moved = true;
+                    }
+                    board[r][c] = mergedRow[c];
+                }
+            }
+            break;
+        case 'right':
+            for (let r = 0; r < boardSize; r++) {
+                const newRow = board[r].filter(num => num !== 0).reverse();
+                const mergedRow = [];
+                for (let c = 0; c < newRow.length; c++) {
+                    if (newRow[c] === newRow[c + 1]) {
+                        mergedRow.push(newRow[c] * 2);
+                        score += newRow[c] * 2;
+                        c++;
+                    } else {
+                        mergedRow.push(newRow[c]);
+                    }
+                }
+                while (mergedRow.length < boardSize) mergedRow.push(0);
+                mergedRow.reverse();
+                for (let c = 0; c < boardSize; c++) {
+                    if (board[r][c] !== mergedRow[c]) {
+                        moved = true;
+                    }
+                    board[r][c] = mergedRow[c];
+                }
+            }
+            break;
+        case 'up':
+            for (let c = 0; c < boardSize; c++) {
+                const newColumn = [];
+                for (let r = 0; r < boardSize; r++) {
+                    if (board[r][c] !== 0) newColumn.push(board[r][c]);
+                }
+                const mergedColumn = [];
+                for (let r = 0; r < newColumn.length; r++) {
+                    if (newColumn[r] === newColumn[r + 1]) {
+                        mergedColumn.push(newColumn[r] * 2);
+                        score += newColumn[r] * 2;
+                        r++;
+                    } else {
+                        mergedColumn.push(newColumn[r]);
+                    }
+                }
+                while (mergedColumn.length < boardSize) mergedColumn.push(0);
+                for (let r = 0; r < boardSize; r++) {
+                    if (board[r][c] !== mergedColumn[r]) {
+                        moved = true;
+                    }
+                    board[r][c] = mergedColumn[r];
+                }
+            }
+            break;
+        case 'down':
+            for (let c = 0; c < boardSize; c++) {
+                const newColumn = [];
+                for (let r = 0; r < boardSize; r++) {
+                    if (board[r][c] !== 0) newColumn.push(board[r][c]);
+                }
+                const mergedColumn = [];
+                for (let r = 0; r < newColumn.length; r++) {
+                    if (newColumn[r] === newColumn[r + 1]) {
+                        mergedColumn.push(newColumn[r] * 2);
+                        score += newColumn[r] * 2;
+                        r++;
+                    } else {
+                        mergedColumn.push(newColumn[r]);
+                    }
+                }
+                while (mergedColumn.length < boardSize) mergedColumn.push(0);
+                mergedColumn.reverse();
+                for (let r = 0; r < boardSize; r++) {
+                    if (board[r][c] !== mergedColumn[boardSize - 1 - r]) {
+                        moved = true;
+                    }
+                    board[r][c] = mergedColumn[boardSize - 1 - r];
+                }
+            }
+            break;
+    }
 
-#board {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    grid-gap: 10px;
-    margin: 20px;
-}
-
-.tile {
-    width: 80px;
-    height: 80px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    border-radius: 5px;
-    transition: background-color 0.3s, transform 0.3s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.tile:hover {
-    transform: scale(1.05);
-}
-
-.number {
-    position: absolute;
-    font-size: 24px;
-    color: #ffffff;
-    pointer-events: none;
-}
-
-button {
-    margin: 10px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #3d5a80;
-    color: #ffffff;
-    font-size: 16px;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-button:hover {
-    background-color: #98c9e0;
-    transform: scale(1.05);
-}
-
-#score, #high-score {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 18px;
-}
-
-#reset-button {
-    align-self: center;
-    margin-top: 20px;
-}
-
-/* Falling numbers animation */
-@keyframes fall {
-    to {
-        transform: translateY(100vh);
-        opacity: 0;
+    if (moved) {
+        addRandomTile();
+        render();
+        checkGameOver();
     }
 }
 
-.number {
-    animation: fall linear forwards;
+function checkGameOver() {
+    for (let r = 0; r < boardSize; r++) {
+        for (let c = 0; c < boardSize; c++) {
+            if (board[r][c] === 0 || 
+                (c < boardSize - 1 && board[r][c] === board[r][c + 1]) || 
+                (r < boardSize - 1 && board[r][c] === board[r + 1][c])) {
+                return false; // There are still valid moves
+            }
+        }
+    }
+    alert('Game Over! Your score: ' + score);
+    updateHighScore();
+    return true; // No valid moves left
 }
+
+function updateHighScore() {
+    const storedHighScore = localStorage.getItem(`highScore_${boardSize}`);
+    highScore = storedHighScore ? parseInt(storedHighScore) : 0;
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem(`highScore_${boardSize}`, highScore);
+    }
+    highScoreElement.textContent = highScore; // Update high score display
+}
+
+function saveGame() {
+    const gameState = {
+        board,
+        score
+    };
+    localStorage.setItem(`gameState_${boardSize}`, JSON.stringify(gameState));
+}
+
+function loadGame() {
+    const gameState = localStorage.getItem(`gameState_${boardSize}`);
+    if (gameState) {
+        const { board: loadedBoard, score: loadedScore } = JSON.parse(gameState);
+        board = loadedBoard;
+        score = loadedScore;
+        render();
+    } else {
+        initGame();
+    }
+}
+
+function startGame() {
+    boardSize = parseInt(sizeSelect.value);
+    menu.classList.remove('active');
+    game.classList.add('active');
+    initGame();
+}
+
+function resetGame() {
+    menu.classList.add('active');
+    game.classList.remove('active');
+    score = 0; // Reset the score for the new game
+    scoreElement.textContent = score;
+    boardElement.innerHTML = ''; // Clear the board
+    initGame(); // Re-initialize the game state
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!game.classList.contains('active')) return; // Only listen for key events when the game is active
+    if (e.repeat) return; // Prevent multiple moves on hold
+    switch (e.key) {
+        case 'ArrowLeft':
+        case 'a':
+            move('left');
+            break;
+        case 'ArrowRight':
+        case 'd':
+            move('right');
+            break;
+        case 'ArrowUp':
+        case 'w':
+            move('up');
+            break;
+        case 'ArrowDown':
+        case 's':
+            move('down');
+            break;
+    }
+});
+
+playButton.addEventListener('click', startGame);
+resetButton.addEventListener('click', resetGame);
+
+// Falling numbers effect
+function createFallingNumber() {
+    const numberElement = document.createElement('div');
+    numberElement.className = 'number';
+    numberElement.textContent = Math.floor(Math.random() * 10); // Random digit from 0 to 9
+
+    const xPosition = Math.random() * window.innerWidth; // Random x position
+    numberElement.style.left = `${xPosition}px`;
+    document.getElementById('falling-numbers').appendChild(numberElement);
+
+    const duration = Math.random() * 3 + 2; // Random duration between 2s and 5s
+    numberElement.style.animation = `fall ${duration}s linear forwards`;
+
+    // Remove number after animation ends
+    numberElement.addEventListener('animationend', () => {
+        numberElement.remove();
+    });
+}
+
+// Start generating falling numbers
+setInterval(createFallingNumber, 300); // Create a new falling number every 300ms
+
+// Add CSS animation for falling numbers
+const style = document.createElement('style');
+style.textContent = `
+@keyframes fall {
+    to {
+        transform: translateY(100vh);
+    }
+}
+`;
+document.head.appendChild(style);
+
+// Load game state if exists
+loadGame();
