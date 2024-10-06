@@ -1,20 +1,24 @@
 body {
-    display: flex;
+    display: flex; /* Flexbox layout for vertical centering */
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    background-color: #1c1c1c;
-    color: white;
-    font-family: 'Arial', sans-serif;
+    height: 100vh; /* Full viewport height */
+    background-color: #1c1c1c; /* Dark background color */
+    color: white; /* Text color */
+    font-family: 'Arial', sans-serif; /* Default font */
 }
 
 h1 {
-    margin-bottom: 20px;
-    font-size: 48px; /* Increased size for the header */
-    color: #ff4500; /* A bright orange-red color for better visibility */
-    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8); /* Enhanced shadow for depth */
-    font-family: 'Impact', sans-serif; /* Changed font for a bolder look */
+    margin-bottom: 20px; /* Space below the header */
+    font-size: 48px; /* Header font size */
+    color: white; /* Text color */
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8); /* Shadow for depth */
+    font-family: 'Impact', sans-serif; /* Bold font for emphasis */
+    border: 2px solid cyan; /* Cyan border around the header */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)); /* Black gradient background */
+    padding: 10px; /* Inner padding */
+    border-radius: 10px; /* Rounded corners for the header */
 }
 
 .board {
@@ -52,31 +56,31 @@ h1 {
 }
 
 .menu, .game {
-    display: none;
+    display: none; /* Hide menu and game by default */
 }
 
 .menu.active, .game.active {
-    display: block;
+    display: block; /* Show active menu or game */
 }
 
 #size-select {
-    margin-bottom: 20px;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 2px solid cyan; /* Cyan border for select */
-    background-color: rgba(255, 255, 255, 0.5); /* Reduced transparency */
+    margin-bottom: 20px; /* Space below the dropdown */
+    padding: 10px; /* Inner padding */
+    font-size: 16px; /* Font size for dropdown */
+    border-radius: 5px; /* Rounded corners */
+    border: 2px solid cyan; /* Cyan border for dropdown */
+    background-color: rgba(255, 255, 255, 0.5); /* Slightly transparent background */
 }
 
 #play-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: rgba(0, 204, 0, 0.9); /* Green color for play button */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    padding: 10px 20px; /* Inner padding */
+    font-size: 16px; /* Font size for play button */
+    background-color: rgba(0, 204, 0, 0.9); /* Green background color */
+    color: white; /* Text color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition effects */
 }
 
 #play-button:hover {
@@ -85,27 +89,27 @@ h1 {
 }
 
 .scores {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
+    display: flex; /* Flexbox layout for scores */
+    flex-direction: column; /* Stack scores vertically */
+    align-items: center; /* Center align items */
+    margin-bottom: 20px; /* Space below scores */
 }
 
 .reset-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
+    display: flex; /* Flexbox layout for reset button */
+    justify-content: center; /* Center align content */
+    margin-top: 10px; /* Space above reset container */
 }
 
 #reset-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: rgba(255, 69, 0, 0.9); /* Red color for reset button */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    padding: 10px 20px; /* Inner padding */
+    font-size: 16px; /* Font size for reset button */
+    background-color: rgba(255, 69, 0, 0.9); /* Red background color */
+    color: white; /* Text color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition effects */
 }
 
 #reset-button:hover {
