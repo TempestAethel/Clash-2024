@@ -259,6 +259,41 @@ document.addEventListener('touchend', (event) => {
     checkGameOver();
 });
 
+// Add this function to your existing script.js
+
+function createFallingNumber() {
+    const numberElement = document.createElement('div');
+    numberElement.className = 'number';
+    numberElement.textContent = Math.floor(Math.random() * 10); // Random digit from 0 to 9
+
+    const xPosition = Math.random() * window.innerWidth; // Random x position
+    numberElement.style.left = `${xPosition}px`;
+    document.getElementById('falling-numbers').appendChild(numberElement);
+
+    const duration = Math.random() * 3 + 2; // Random duration between 2s and 5s
+    numberElement.style.animation = `fall ${duration}s linear forwards`;
+
+    // Remove number after animation ends
+    numberElement.addEventListener('animationend', () => {
+        numberElement.remove();
+    });
+}
+
+// Add this code to start generating falling numbers
+setInterval(createFallingNumber, 300); // Create a new falling number every 300ms
+
+// Add this CSS animation to your existing script.js
+const style = document.createElement('style');
+style.textContent = `
+@keyframes fall {
+    to {
+        transform: translateY(100vh);
+    }
+}
+`;
+document.head.appendChild(style);
+
+
 playButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', resetGame);
 
