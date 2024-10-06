@@ -8,7 +8,6 @@ let board, score;
 playButton.addEventListener('click', () => {
     const size = parseInt(boardSizeSelect.value);
     setupBoard(size);
-    startGame(size);
 });
 
 function setupBoard(size) {
@@ -32,11 +31,14 @@ function addRandomTile() {
         if (tile === 0) emptyTiles.push({ r, c });
     }));
     
+    if (emptyTiles.length === 0) return; // No empty tiles left
+    
     const { r, c } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
     board[r][c] = Math.random() < 0.9 ? 2 : 4;
 }
 
 function drawBoard() {
+    gameBoard.innerHTML = ''; // Clear the board before drawing
     board.forEach(row => {
         row.forEach(tile => {
             const tileDiv = document.createElement('div');
@@ -53,18 +55,33 @@ function updateScore() {
 
 document.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowUp' || event.key === 'w') {
-        moveUp();
+        if (moveUp()) {
+            addRandomTile();
+            drawBoard();
+            updateScore();
+        }
     } else if (event.key === 'ArrowDown' || event.key === 's') {
-        moveDown();
+        if (moveDown()) {
+            addRandomTile();
+            drawBoard();
+            updateScore();
+        }
     } else if (event.key === 'ArrowLeft' || event.key === 'a') {
-        moveLeft();
+        if (moveLeft()) {
+            addRandomTile();
+            drawBoard();
+            updateScore();
+        }
     } else if (event.key === 'ArrowRight' || event.key === 'd') {
-        moveRight();
+        if (moveRight()) {
+            addRandomTile();
+            drawBoard();
+            updateScore();
+        }
     }
 });
 
 function moveUp() {
-    // Logic for moving tiles up
     let moved = false;
     for (let c = 0; c < board.length; c++) {
         let stack = [];
@@ -83,25 +100,73 @@ function moveUp() {
             board[r][c] = stack[r] || 0;
         }
     }
-    if (moved) {
-        addRandomTile();
-        drawBoard();
-        updateScore();
-    }
+    return moved;
 }
 
-// Implement moveDown, moveLeft, moveRight with similar logic
-
 function moveDown() {
-    // Logic for moving tiles down (similar to moveUp)
+    let moved = false;
+    for (let c = 0; c < board.length; c++) {
+        let stack = [];
+        for (let r = board.length - 1; r >= 0; r--) {
+            if (board[r][c] !== 0) {
+                if (stack.length && stack[stack.length - 1] === board[r][c]) {
+                    stack[stack.length - 1] *= 2;
+                    score += stack[stack.length - 1];
+                    moved = true;
+                } else {
+                    stack.push(board[r][c]);
+                }
+            }
+        }
+        for (let r = board.length - 1; r >= 0; r--) {
+            board[r][c] = stack.pop() || 0;
+        }
+    }
+    return moved;
 }
 
 function moveLeft() {
-    // Logic for moving tiles left
+    let moved = false;
+    for (let r = 0; r < board.length; r++) {
+        let stack = [];
+        for (let c = 0; c < board.length; c++) {
+            if (board[r][c] !== 0) {
+                if (stack.length && stack[stack.length - 1] === board[r][c]) {
+                    stack[stack.length - 1] *= 2;
+                    score += stack[stack.length - 1];
+                    moved = true;
+                } else {
+                    stack.push(board[r][c]);
+                }
+            }
+        }
+        for (let c = 0; c < board.length; c++) {
+            board[r][c] = stack[c] || 0;
+        }
+    }
+    return moved;
 }
 
 function moveRight() {
-    // Logic for moving tiles right
+    let moved = false;
+    for (let r = 0; r < board.length; r++) {
+        let stack = [];
+        for (let c = board.length - 1; c >= 0; c--) {
+            if (board[r][c] !== 0) {
+                if (stack.length && stack[stack.length - 1] === board[r][c]) {
+                    stack[stack.length - 1] *= 2;
+                    score += stack[stack.length - 1];
+                    moved = true;
+                } else {
+                    stack.push(board[r][c]);
+                }
+            }
+        }
+        for (let c = board.length - 1; c >= 0; c--) {
+            board[r][c] = stack.pop() || 0;
+        }
+    }
+    return moved;
 }
 
 // Swipe controls for mobile
@@ -122,15 +187,31 @@ gameBoard.addEventListener('touchend', (event) => {
 
     if (Math.abs(diffX) > Math.abs(diffY)) {
         if (diffX > 0) {
-            moveRight();
+            if (moveRight()) {
+                addRandomTile();
+                drawBoard();
+                updateScore();
+            }
         } else {
-            moveLeft();
+            if (moveLeft()) {
+                addRandomTile();
+                drawBoard();
+                updateScore();
+            }
         }
     } else {
         if (diffY > 0) {
-            moveDown();
+            if (moveDown()) {
+                addRandomTile();
+                drawBoard();
+                updateScore();
+            }
         } else {
-            moveUp();
+            if (moveUp()) {
+                addRandomTile();
+                drawBoard();
+                updateScore();
+            }
         }
     }
 });
