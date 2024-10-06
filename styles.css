@@ -11,9 +11,10 @@ body {
 
 h1 {
     margin-bottom: 20px;
-    font-size: 36px;
-    color: #ffa500; /* Orange color for the header */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    font-size: 48px; /* Increased size for the header */
+    color: #ff4500; /* A bright orange-red color for better visibility */
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8); /* Enhanced shadow for depth */
+    font-family: 'Impact', sans-serif; /* Changed font for a bolder look */
 }
 
 .board {
@@ -64,7 +65,7 @@ h1 {
     font-size: 16px;
     border-radius: 5px;
     border: 2px solid cyan; /* Cyan border for select */
-    background-color: rgba(255, 255, 255, 0.2); /* Slightly transparent background */
+    background-color: rgba(255, 255, 255, 0.5); /* Reduced transparency */
 }
 
 #play-button {
