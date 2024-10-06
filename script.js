@@ -1,227 +1,126 @@
-// Game Variables
-let score = 0;
-let bronzeClicks = 0;
-let isGamePaused = false;
-let timerInterval;
-let timeLeft = 600; // 10 minutes (600 seconds)
-let multiplier = 1;
-let prestigeLevel = 1;
-let coins = { bronze: 0, silver: 0, gold: 0, platinum: 0, titanium: 0, diamond: 0, crystal: 0, ruby: 0, emerald: 0, obsidian: 0 };
+//Video: https://youtu.be/zTNuMUsO-1g?si=gf3Cc8TarPge0y-K
 
-// HTML Elements
-const playButton = document.getElementById('play-button');
-const pleadButton = document.getElementById('plead-button');
-const resetButton = document.getElementById('reset-button');
-const scoreElement = document.getElementById('score');
-const timerElement = document.getElementById('timer');
-const pleadSection = document.getElementById('plead-section');
-const prestigeSection = document.getElementById('prestige-section');
-const multiplierOption = document.getElementById('multiplier-option');
-const timeOption = document.getElementById('time-option');
+let timer
+let array
 
-// Load Game State from Local Storage
-function loadGame() {
-    score = parseInt(localStorage.getItem('score')) || 0;
-    bronzeClicks = parseInt(localStorage.getItem('bronzeClicks')) || 0;
-    coins = JSON.parse(localStorage.getItem('coins')) || coins;
-    multiplier = parseInt(localStorage.getItem('multiplier')) || 1;
-    prestigeLevel = parseInt(localStorage.getItem('prestigeLevel')) || 1;
-    timeLeft = parseInt(localStorage.getItem('timeLeft')) || 600;
-    updateScore();
-    renderCoins();
+let fruitColors = [
+	'#f32223',
+	'#ac6cff',
+	'#f7ba00',
+	'#fa080e',
+	'#fdef9d',
+	'#ffb5ac',
+	'#f8ee11',
+	'#9fdd0f',
+	'#42b307'
+]
+
+function setup() {
+	new Canvas(500,600)
+	background('#f7f2c8')
+	world.gravity.y = 15;
+	
+	let walls = []
+	walls.push(new Sprite(250,595,500,10,'static'))
+	walls.push(new Sprite(5,300,10,600,'static'))
+	walls.push(new Sprite(495,300,10,600,'static'))
+	
+	walls.forEach(wall =>{
+		wall.color = color('#f6d581')
+		wall.stroke = color('#f6d581')
+	})
+	
+	curr = new Fruit(0,new Sprite(250,25,30,'d'))
+	timer = 0
+	array = []
 }
 
-// Save Game State to Local Storage
-function saveGame() {
-    localStorage.setItem('score', score);
-    localStorage.setItem('bronzeClicks', bronzeClicks);
-    localStorage.setItem('coins', JSON.stringify(coins));
-    localStorage.setItem('multiplier', multiplier);
-    localStorage.setItem('prestigeLevel', prestigeLevel);
-    localStorage.setItem('timeLeft', timeLeft);
+function draw() {
+	background('#f7f2c8')
+	
+	if(curr){
+		curr.sprite.y = 25
+		curr.sprite.x = constrain(mouseX,10+curr.sprite.d/2,490-curr.sprite.d/2)
+		curr.sprite.vel.y = 0
+	}else{
+		timer++
+	}
+	
+	if(mouseIsPressed && curr){
+		array.push(curr)
+		curr = null
+	}
+	
+	if(timer > 50){
+		let newI = int(random(4))
+		curr = new Fruit(newI,new Sprite(mouseX,25,30+30*newI,'d'))
+		timer = 0
+	}
+	
+	for(let i = 0; i < array.length; i++){
+		for(let j = 0; j < array.length; j++){
+			if(i!==j && array[i].i == array[j].i && myCollides(array[i].sprite,array[j].sprite) && !array[i].removed && !array[j].removed){
+				//add new fruit
+				let a = array[i].sprite
+				let b = array[i].sprite
+				
+				let newX = (a.x+b.x)/2
+				let newY = (a.y+b.y)/2
+				let newI = array[i].i+1
+				let newSprite = new Sprite(newX,newY,30+30*newI,'d')
+				array.push(new Fruit(newI,newSprite))
+				
+				//Remove fruits
+				array[i].removed = true
+				array[j].removed = true
+				
+				array[i].sprite.remove()
+				array[j].sprite.remove()
+			}
+		}
+	}
+	
+	array = array.filter(x => !x.removed)
 }
 
-// Function to update the score
-function updateScore() {
-    scoreElement.textContent = score;
+function myCollides(a,b){
+	return dist(a.x,a.y,b.x,b.y) < 2 + a.d
 }
 
-// Function to start the timer
-function startTimer() {
-    timerInterval = setInterval(() => {
-        if (!isGamePaused) {
-            let minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            timeLeft--;
-            
-            if (timeLeft < 0) {
-                clearInterval(timerInterval);
-                endGame();
-            }
-        }
-    }, 1000);
+class Fruit{
+	constructor(i, sprite){
+		this.removed = false
+		this.i = i%fruitColors.length
+		this.sprite = sprite
+		this.t = random(1000)
+		this.sprite.draw = () => {
+			push()
+			fill(fruitColors[this.i])
+			stroke(10)
+			ellipse(0,0,this.sprite.d,this.sprite.d)
+			fill(10)
+			//eyes
+			if(noise(this.t)<0.35){
+				ellipse(this.sprite.d*0.3,0,this.sprite.d*0.1,this.sprite.d*0.025)
+				ellipse(-this.sprite.d*0.3,0,this.sprite.d*0.1,this.sprite.d*0.025)
+			}else{
+				ellipse(this.sprite.d*0.3,0,this.sprite.d*0.1,this.sprite.d*0.1)
+				ellipse(-this.sprite.d*0.3,0,this.sprite.d*0.1,this.sprite.d*0.1)
+			}
+		
+			//mouth
+			arc(0,0,this.sprite.d*0.2,this.sprite.d*0.3,0,180)
+			pop()
+			this.t+=0.01
+		}		
+	}
 }
 
-// Function to handle the end of the game (timer runs out)
-function endGame() {
-    pleadSection.style.display = 'none';
-    prestigeSection.style.display = 'block'; // Show prestige options
-}
 
-// Prestige options
-multiplierOption.addEventListener('click', () => {
-    multiplier += prestigeLevel;
-    prestigeLevel++;
-    resetGame();
-});
 
-timeOption.addEventListener('click', () => {
-    timeLeft += 300; // Add 5 more minutes
-    prestigeLevel++;
-    resetGame();
-});
 
-// Handle the Play/Pause button toggle
-playButton.addEventListener('click', () => {
-    if (playButton.textContent === 'Play') {
-        // Start game, show plead button, change Play to Pause
-        isGamePaused = false;
-        pleadSection.style.display = 'block';
-        playButton.textContent = 'Pause';
-        
-        if (!timerInterval) {
-            startTimer();  // Start the timer if not already running
-        }
-    } else {
-        // Pause the game
-        isGamePaused = true;
-        pleadSection.style.display = 'none'; // Hide Plead button
-        playButton.textContent = 'Play'; // Change Pause to Play
-    }
-});
 
-// Handle plead button click (spawn bronze coin and update score)
-pleadButton.addEventListener('click', () => {
-    if (!isGamePaused) {
-        let bronzeCoin = document.createElement('img');
-        bronzeCoin.src = 'coins/bronze.png';
-        bronzeCoin.className = 'coin bronze';
-        bronzeCoin.style.top = `${Math.random() * 500}px`;
-        bronzeCoin.style.left = `${Math.random() * 500}px`;
-        
-        bronzeCoin.addEventListener('click', () => {
-            if (!isGamePaused) {
-                score += 1 * multiplier;
-                bronzeClicks++;
-                coins.bronze++;
-                if (bronzeClicks >= 1000) {
-                    upgradeCoin(bronzeCoin, 'silver', 5);
-                    bronzeClicks = 0;
-                }
-                updateScore();
-                saveGame();
-            }
-        });
 
-        document.getElementById('coins').appendChild(bronzeCoin);
-    }
-});
 
-// Function to upgrade a coin
-function upgradeCoin(coinElement, newTier, scoreValue) {
-    coinElement.src = `coins/${newTier}.png`;
-    coinElement.classList.remove('bronze');
-    coinElement.classList.add(newTier);
-    coinElement.addEventListener('click', () => {
-        if (!isGamePaused) {
-            score += scoreValue * multiplier;
-            updateScore();
-            saveGame();
-        }
-    });
-}
 
-// Function to autoclick the previous tier every second
-function autoclickCoin(coinTier, previousTier, interval) {
-    setInterval(() => {
-        if (!isGamePaused && coins[previousTier] > 0) {
-            score += coins[coinTier] * multiplier;
-            updateScore();
-            saveGame();
-        }
-    }, interval);
-}
 
-// Function to render coins from local storage
-function renderCoins() {
-    for (let coinType in coins) {
-        for (let i = 0; i < coins[coinType]; i++) {
-            let coinImg = document.createElement('img');
-            coinImg.src = `coins/${coinType}.png`;
-            coinImg.className = `coin ${coinType}`;
-            coinImg.style.top = `${Math.random() * 500}px`;
-            coinImg.style.left = `${Math.random() * 500}px`;
-            document.getElementById('coins').appendChild(coinImg);
-        }
-    }
-}
-
-// Reset button to restart the game
-resetButton.addEventListener('click', () => {
-    resetGame(true);
-});
-
-// Function to reset the game
-function resetGame(clearStorage = false) {
-    score = 0;
-    bronzeClicks = 0;
-    coins = { bronze: 0, silver: 0, gold: 0, platinum: 0, titanium: 0, diamond: 0, crystal: 0, ruby: 0, emerald: 0, obsidian: 0 };
-    isGamePaused = true;
-    clearInterval(timerInterval);
-    timerInterval = null;
-    timeLeft = 600; // Reset timer to 10 minutes
-    updateScore();
-    playButton.textContent = 'Play';
-    pleadSection.style.display = 'none';
-    prestigeSection.style.display = 'none';
-    document.getElementById('coins').innerHTML = '';
-    
-    if (clearStorage) {
-        localStorage.clear(); // Clear local storage
-    }
-}
-
-// Function to check and remove coins if more than 5 of the same type
-function checkCoinLimit() {
-    for (let coinType in coins) {
-        if (coins[coinType] > 5) {
-            removeCoins(coinType);
-        }
-    }
-}
-
-// Function to remove all coins of a specific type
-function removeCoins(coinType) {
-    let coinElements = document.querySelectorAll(`.coin.${coinType}`);
-    coinElements.forEach(coin => {
-        coin.remove();
-    });
-    coins[coinType] = 0;
-    saveGame();
-}
-
-// Initialize game on load
-updateScore();
-loadGame();
-
-// Autoclickers for each coin tier
-autoclickCoin('silver', 'bronze', 1000);
-autoclickCoin('gold', 'silver', 1000);
-autoclickCoin('platinum', 'gold', 1000);
-autoclickCoin('titanium', 'platinum', 1000);
-autoclickCoin('diamond', 'titanium', 1000);
-autoclickCoin('crystal', 'diamond', 1000);
-autoclickCoin('ruby', 'crystal', 1000);
-autoclickCoin('emerald', 'ruby', 1000);
-autoclickCoin('obsidian', 'emerald', 1000);
