@@ -123,13 +123,13 @@ function move(direction) {
                     if (board[r][c] !== 0) newColumn.push(board[r][c]);
                 }
                 const mergedColumn = [];
-                for (let r = 0; r < newColumn.length; r++) {
-                    if (newColumn[r] === newColumn[r + 1]) {
-                        mergedColumn.push(newColumn[r] * 2);
-                        score += newColumn[r] * 2;
-                        r++;
+                for (let i = 0; i < newColumn.length; i++) {
+                    if (newColumn[i] === newColumn[i + 1]) {
+                        mergedColumn.push(newColumn[i] * 2);
+                        score += newColumn[i] * 2;
+                        i++;
                     } else {
-                        mergedColumn.push(newColumn[r]);
+                        mergedColumn.push(newColumn[i]);
                     }
                 }
                 while (mergedColumn.length < boardSize) mergedColumn.push(0);
@@ -148,81 +148,57 @@ function move(direction) {
                     if (board[r][c] !== 0) newColumn.push(board[r][c]);
                 }
                 const mergedColumn = [];
-                for (let r = 0; r < newColumn.length; r++) {
-                    if (newColumn[r] === newColumn[r + 1]) {
-                        mergedColumn.push(newColumn[r] * 2);
-                        score += newColumn[r] * 2;
-                        r++;
+                for (let i = 0; i < newColumn.length; i++) {
+                    if (newColumn[i] === newColumn[i + 1]) {
+                        mergedColumn.push(newColumn[i] * 2);
+                        score += newColumn[i] * 2;
+                        i++;
                     } else {
-                        mergedColumn.push(newColumn[r]);
+                        mergedColumn.push(newColumn[i]);
                     }
                 }
                 while (mergedColumn.length < boardSize) mergedColumn.push(0);
                 mergedColumn.reverse();
                 for (let r = 0; r < boardSize; r++) {
-                    if (board[r][c] !== mergedColumn[boardSize - 1 - r]) {
+                    if (board[r][c] !== mergedColumn[r]) {
                         moved = true;
                     }
-                    board[r][c] = mergedColumn[boardSize - 1 - r];
+                    board[r][c] = mergedColumn[r];
                 }
             }
             break;
     }
-
     if (moved) {
         addRandomTile();
         render();
+        scoreElement.textContent = score;
         checkGameOver();
     }
 }
 
 function checkGameOver() {
-    for (let r = 0; r < boardSize; r++) {
-        for (let c = 0; c < boardSize; c++) {
-            if (board[r][c] === 0 || 
-                (c < boardSize - 1 && board[r][c] === board[r][c + 1]) || 
-                (r < boardSize - 1 && board[r][c] === board[r + 1][c])) {
-                return false; // There are still valid moves
-            }
-        }
+    const hasEmptyTile = board.some(row => row.includes(0));
+    const hasMergeableTile = board.some((row, r) => row.some((num, c) => {
+        return (num === row[c + 1]) || (r < boardSize - 1 && num === board[r + 1][c]);
+    }));
+    if (!hasEmptyTile && !hasMergeableTile) {
+        alert('Game Over!');
+        updateHighScore();
     }
-    alert('Game Over! Your score: ' + score);
-    updateHighScore();
-    return true; // No valid moves left
 }
 
 function updateHighScore() {
-    const storedHighScore = localStorage.getItem(`highScore_${boardSize}`);
-    highScore = storedHighScore ? parseInt(storedHighScore) : 0;
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem(`highScore_${boardSize}`, highScore);
-    }
-    highScoreElement.textContent = highScore; // Update high score display
-}
-
-function saveGame() {
-    const gameState = {
-        board,
-        score
-    };
-    localStorage.setItem(`gameState_${boardSize}`, JSON.stringify(gameState));
-}
-
-function loadGame() {
-    const gameState = localStorage.getItem(`gameState_${boardSize}`);
-    if (gameState) {
-        const { board: loadedBoard, score: loadedScore } = JSON.parse(gameState);
-        board = loadedBoard;
-        score = loadedScore;
-        render();
-    } else {
-        initGame();
+    const currentHighScore = localStorage.getItem(`highScore_${boardSize}`) || 0;
+    if (score > currentHighScore) {
+        localStorage.setItem(`highScore_${boardSize}`, score);
+        highScoreElement.textContent = score;
     }
 }
 
 function startGame() {
     boardSize = parseInt(sizeSelect.value);
+    highScore = localStorage.getItem(`highScore_${boardSize}`) || 0;
+    highScoreElement.textContent = highScore;
     menu.classList.remove('active');
     game.classList.add('active');
     initGame();
@@ -231,16 +207,10 @@ function startGame() {
 function resetGame() {
     menu.classList.add('active');
     game.classList.remove('active');
-    score = 0; // Reset the score for the new game
-    scoreElement.textContent = score;
-    boardElement.innerHTML = ''; // Clear the board
-    initGame(); // Re-initialize the game state
 }
 
-document.addEventListener('keydown', (e) => {
-    if (!game.classList.contains('active')) return; // Only listen for key events when the game is active
-    if (e.repeat) return; // Prevent multiple moves on hold
-    switch (e.key) {
+document.addEventListener('keydown', (event) => {
+    switch (event.key) {
         case 'ArrowLeft':
         case 'a':
             move('left');
@@ -269,12 +239,12 @@ function createFallingNumber() {
     numberElement.className = 'number';
     numberElement.textContent = Math.floor(Math.random() * 10); // Random digit from 0 to 9
 
-    const xPosition = Math.random() * window.innerWidth; // Random x position
+    const xPosition = Math.random() * (window.innerWidth - 50); // Random x position
     numberElement.style.left = `${xPosition}px`;
     document.getElementById('falling-numbers').appendChild(numberElement);
 
     const duration = Math.random() * 3 + 2; // Random duration between 2s and 5s
-    numberElement.style.animation = `fall ${duration}s linear forwards`;
+    numberElement.style.animationDuration = `${duration}s`; // Set the animation duration
 
     // Remove number after animation ends
     numberElement.addEventListener('animationend', () => {
@@ -284,17 +254,3 @@ function createFallingNumber() {
 
 // Start generating falling numbers
 setInterval(createFallingNumber, 300); // Create a new falling number every 300ms
-
-// Add CSS animation for falling numbers
-const style = document.createElement('style');
-style.textContent = `
-@keyframes fall {
-    to {
-        transform: translateY(100vh);
-    }
-}
-`;
-document.head.appendChild(style);
-
-// Load game state if exists
-loadGame();
