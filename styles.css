@@ -1,0 +1,54 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f0f0;
+}
+
+header {
+    margin-bottom: 20px;
+}
+
+#game-container {
+    position: relative;
+    width: 80vw;
+    height: 80vh;
+    border: 2px solid #333;
+    overflow: hidden;
+}
+
+#score-display, #timer-display {
+    position: absolute;
+    font-size: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+#score-display {
+    top: 10px;
+    right: 10px;
+}
+
+#timer-display {
+    top: 10px;
+    left: 10px;
+}
+
+.coin {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+}
