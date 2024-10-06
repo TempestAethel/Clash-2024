@@ -1,28 +1,27 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coin Conquest</title>
+    <title>2048 Game</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Coin Conquest</h1>
-    </header>
-    <div id="game-container">
-        <div id="score-display">Score: 0</div>
-        <div id="timer-display">Time Left: 600</div>
-        <button id="play-pause-btn">Play</button>
-        <button id="plead-btn" style="display:none;">Plead for Coins</button>
-        <button id="reset-btn">Reset</button>
-        <div id="coins-container"></div>
+    <div id="menu">
+        <h1>2048 Game</h1>
+        <label for="board-size">Select Board Size:</label>
+        <select id="board-size">
+            <option value="4">4x4</option>
+            <option value="5">5x5</option>
+            <option value="6">6x6</option>
+            <option value="7">7x7</option>
+            <option value="8">8x8</option>
+            <option value="9">9x9</option>
+            <option value="10">10x10</option>
+        </select>
+        <button id="play-button">Play</button>
     </div>
-    <div id="prestige-options" style="display:none;">
-        <h2>Prestige Options</h2>
-        <button id="score-multiplier-btn">Double Score Multiplier</button>
-        <button id="extra-time-btn">Extra 2 Minutes</button>
-    </div>
+    <div id="game-board" class="hidden"></div>
+    <div id="score">Score: <span id="score-value">0</span></div>
     <script src="script.js"></script>
 </body>
 </html>
