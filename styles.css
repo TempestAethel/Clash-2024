@@ -43,8 +43,8 @@ body {
 }
 
 .tile {
-    width: 90px; /* Reduced size to fit better */
-    height: 90px; /* Reduced size to fit better */
+    width: 90px; /* Adjusted size to fit better */
+    height: 90px; /* Adjusted size to fit better */
     display: flex;
     align-items: center;
     justify-content: center;
