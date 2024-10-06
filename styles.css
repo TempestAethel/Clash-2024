@@ -1,94 +1,85 @@
 body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+    color: white;
+    overflow: hidden; /* Prevents scrolling */
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #1c1c1c;
-    color: white;
-    font-family: Arial, sans-serif;
 }
+
 h1 {
-    margin-bottom: 20px;
+    margin: 20px 0;
     font-size: 36px;
-    color: #ffa500; /* Orange color for the header */
 }
-.board {
-    display: grid;
-    grid-gap: 10px;
-    margin-bottom: 20px;
-}
-.tile {
-    width: 100px;
-    height: 100px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: white;
-    background-color: #555;
-    transition: background-color 0.3s;
-}
-.score, .high-score {
-    font-size: 24px;
-    position: absolute;
-    right: 20px;
-}
-.high-score {
-    top: 20px;
-    margin-bottom: 40px; /* Add margin to create space below */
-}
-.score {
-    top: 60px; /* Adjust the top position */
-}
+
 .menu, .game {
     display: none;
+    flex-direction: column;
+    align-items: center;
 }
+
 .menu.active, .game.active {
-    display: block;
-}
-#size-select {
-    margin-bottom: 20px;
-    padding: 10px;
-    font-size: 16px;
-}
-#play-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #00cc00; /* Green color for play button */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-#play-button:hover {
-    background-color: #00ff00; /* Lighter green on hover */
-}
-.button-container {
     display: flex;
-    justify-content: center; /* Center align the button */
-    margin-top: 20px; /* Space above the button */
 }
-#reset-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #ff4500; /* Red color for reset button */
-    color: white;
+
+select, button {
+    padding: 10px 15px;
+    font-size: 18px;
+    margin: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
-#reset-button:hover {
-    background-color: #ff6347; /* Lighter red on hover */
+
+button {
+    background-color: #3b3b3b;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
+
+button:hover {
+    background-color: #4f4f4f;
+    transform: translateY(-2px);
+}
+
+.high-score, .score {
+    font-size: 24px;
+    margin: 10px;
+}
+
+.board {
+    display: grid;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.tile {
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.2s;
+}
+
+.button-container {
+    margin-top: 20px;
+}
+
 .falling-numbers {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Make sure this doesn't interfere with other interactions */
+    pointer-events: none; /* Ensure this doesn't interfere with other interactions */
     overflow: hidden; /* Prevent overflow from falling numbers */
     z-index: -1; /* Place behind everything */
 }
@@ -99,4 +90,17 @@ h1 {
     font-size: 24px;
     white-space: nowrap;
     user-select: none; /* Prevent text selection */
+    opacity: 0; /* Start as invisible */
+    animation: fall 5s linear forwards; /* Add the fall animation */
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(0);
+        opacity: 1; /* Fade in */
+    }
+    100% {
+        transform: translateY(100vh); /* Move to bottom */
+        opacity: 0; /* Fade out */
+    }
 }
