@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tile Merging Game</title>
+    <title>Clash 2024 - Tile Merging Game</title>
     <style>
         body {
             display: flex;
@@ -11,9 +11,14 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #222;
+            background-color: #1c1c1c;
             color: white;
             font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 36px;
+            color: #ffa500; /* Orange color for the header */
         }
         .board {
             display: grid;
@@ -32,7 +37,7 @@
             background-color: #555;
             transition: background-color 0.3s;
         }
-        .score {
+        .score, .high-score {
             font-size: 24px;
         }
         #size-select {
@@ -41,17 +46,22 @@
     </style>
 </head>
 <body>
+    <h1>Clash 2024</h1>
     <select id="size-select">
         <option value="4">4x4</option>
+        <option value="5">5x5</option>
         <option value="6">6x6</option>
     </select>
     <div class="score">Score: <span id="score">0</span></div>
+    <div class="high-score">High Score: <span id="high-score">0</span></div>
     <div class="board" id="board"></div>
     <script>
         const boardElement = document.getElementById('board');
         const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('high-score');
         const sizeSelect = document.getElementById('size-select');
         let score = 0;
+        let highScore = 0;
         let boardSize = parseInt(sizeSelect.value);
         let board;
 
@@ -59,6 +69,7 @@
             boardSize = parseInt(sizeSelect.value);
             board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
             score = 0;
+            updateHighScore();
             addRandomTile();
             addRandomTile();
             render();
@@ -92,6 +103,8 @@
                 });
             });
             scoreElement.textContent = score;
+            highScoreElement.textContent = highScore;
+            saveGame();
         }
 
         function mergeTiles(row) {
@@ -103,6 +116,7 @@
                         newRow[c] *= 2;
                         score += newRow[c];
                         newRow[c + 1] = 0;
+                        moved = true;
                     }
                 }
                 newRow = newRow.filter(value => value); // Remove zeros again
@@ -197,7 +211,37 @@
             return true; // No valid moves left
         }
 
+        function updateHighScore() {
+            const storedHighScore = localStorage.getItem(`highScore_${boardSize}`);
+            highScore = storedHighScore ? parseInt(storedHighScore) : 0;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem(`highScore_${boardSize}`, highScore);
+            }
+        }
+
+        function saveGame() {
+            const gameState = {
+                board,
+                score
+            };
+            localStorage.setItem(`gameState_${boardSize}`, JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const gameState = localStorage.getItem(`gameState_${boardSize}`);
+            if (gameState) {
+                const { board: loadedBoard, score: loadedScore } = JSON.parse(gameState);
+                board = loadedBoard;
+                score = loadedScore;
+                render();
+            } else {
+                initGame();
+            }
+        }
+
         document.addEventListener('keydown', (e) => {
+            if (e.repeat) return; // Prevent multiple moves on hold
             switch (e.key) {
                 case 'ArrowLeft':
                 case 'a':
@@ -250,9 +294,12 @@
             checkGameOver();
         });
 
-        sizeSelect.addEventListener('change', initGame);
+        sizeSelect.addEventListener('change', () => {
+            localStorage.removeItem(`gameState_${boardSize}`); // Reset local storage for new size
+            initGame();
+        });
 
-        initGame();
+        loadGame();
     </script>
 </body>
 </html>
