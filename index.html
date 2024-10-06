@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -5,99 +6,99 @@
     <title>Coin Conquest</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-        }
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
 
-        #game-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+#game-container {
+    text-align: center;
+    margin-top: 50px;
+}
 
-        #header {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
 
-        #timer-container {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            font-size: 1.5em;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-        }
+h1 {
+    font-size: 36px;
+    margin: 0;
+}
 
-        #score-container {
-            margin-top: 20px;
-            font-size: 1.5em;
-        }
+#score-display {
+    font-size: 24px;
+    margin-right: 20px;
+}
 
-        #play-button, #plead-button, #reset-button, #multiplier-option, #time-option {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 1.2em;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
+#controls {
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
 
-        #plead-section {
-            margin-top: 20px;
-        }
+button {
+    font-size: 18px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
 
-        .coin {
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            margin: 5px;
-            position: absolute;
-        }
+#plead-section {
+    margin-top: 20px;
+}
 
-        #prestige-section {
-            margin-top: 30px;
-        }
+#coins {
+    margin-top: 20px;
+    position: relative;
+}
 
-        #reset-button {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-        }
+.coin {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+}
+
+#timer-display {
+    font-size: 20px;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+}
+
+#prestige-section {
+    margin-top: 20px;
+}
+
+#play-button, #reset-button {
+    display: block;
+    width: 150px;
+    margin: 0 auto;
+}
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1 id="header">COIN CONQUEST</h1>
-        
-        <div id="timer-container">
-            <span id="timer">10:00</span>
+        <header>
+            <h1>COIN CONQUEST</h1>
+            <div id="score-display">Score: 0</div>
+        </header>
+        <div id="controls">
+            <button id="play-button">Play</button>
+            <button id="reset-button">Reset</button>
         </div>
-        
-        <button id="play-button">Play</button>
-        
-        <div id="plead-section" style="display: none;">
-            <button id="plead-button">Plead</button>
-            <div id="coins"></div>
-        </div>
-
-        <div id="score-container">
-            <p>Score: <span id="score">0</span></p>
-        </div>
-        
-        <button id="reset-button" style="display: none;">Reset Game</button>
-        
+        <div id="plead-section"></div>
+        <div id="coins"></div>
         <div id="prestige-section" style="display: none;">
-            <p>Time's up! Choose your reward:</p>
-            <button id="multiplier-option">Multiplier</button>
-            <button id="time-option">Extra Time</button>
+            <h2>Prestige Options</h2>
+            <button id="multiplier-option">Increase Score Multiplier</button>
+            <button id="time-option">Add Extra Time</button>
         </div>
+        <div id="timer-display">Time: 10:00</div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
