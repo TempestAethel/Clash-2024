@@ -37,21 +37,18 @@
             background-color: #555;
             transition: background-color 0.3s;
         }
+        .score, .high-score {
+            font-size: 24px;
+            position: absolute;
+            right: 20px;
+        }
         .high-score {
-    font-size: 24px;
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    margin-bottom: 40px; /* Add margin to create space below */
-}
-
-.score {
-    font-size: 24px;
-    position: absolute;
-    top: 60px; /* Adjust the top position */
-    right: 20px;
-}
-
+            top: 20px;
+            margin-bottom: 40px; /* Add margin to create space below */
+        }
+        .score {
+            top: 60px; /* Adjust the top position */
+        }
         .menu, .game {
             display: none;
         }
@@ -76,7 +73,7 @@
             background-color: #00ff00; /* Lighter green on hover */
         }
         #reset-button {
-            margin-top: 10px;
+            margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
             background-color: #ff4500; /* Red color for reset button */
@@ -84,6 +81,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            align-self: center; /* Center align */
         }
         #reset-button:hover {
             background-color: #ff6347; /* Lighter red on hover */
@@ -235,16 +233,17 @@
                             newColumn[r + 1] = 0;
                         }
                     }
-                    newColumn = newColumn.filter(value => value).reverse();
+                    newColumn = newColumn.filter(value => value);
                     while (newColumn.length < boardSize) {
-                        newColumn.unshift(0); // Fill with zeros
+                        newColumn.push(0); // Fill with zeros
                     }
                     for (let r = 0; r < boardSize; r++) {
-                        board[r][c] = newColumn[r];
+                        board[r][c] = newColumn[boardSize - 1 - r];
                     }
                 }
                 moved = true;
             }
+
             if (moved) {
                 addRandomTile();
                 render();
@@ -307,7 +306,8 @@
             game.classList.remove('active');
             score = 0; // Reset the score for the new game
             scoreElement.textContent = score;
-            highScoreElement.textContent = highScore; // Keep the high score visible
+            boardElement.innerHTML = ''; // Clear the board
+            initGame(); // Re-initialize the game state
         }
 
         document.addEventListener('keydown', (e) => {
