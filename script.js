@@ -1,172 +1,140 @@
-let boardSize = 4; // Default board size
-let board = [];
-let score = 0;
-let highScore = 0;
-
-const menu = document.getElementById('menu');
-const game = document.getElementById('game');
 const boardElement = document.getElementById('board');
 const scoreElement = document.getElementById('score');
 const highScoreElement = document.getElementById('high-score');
+const sizeSelect = document.getElementById('size-select');
 const playButton = document.getElementById('play-button');
 const resetButton = document.getElementById('reset-button');
-const sizeSelect = document.getElementById('size-select');
+const menu = document.getElementById('menu');
+const game = document.getElementById('game');
+let score = 0;
+let highScore = 0;
+let boardSize = parseInt(sizeSelect.value);
+let board;
 
 function initGame() {
+    boardSize = parseInt(sizeSelect.value);
     board = Array.from({ length: boardSize }, () => Array(boardSize).fill(0));
     score = 0;
-    scoreElement.textContent = score;
+    updateHighScore();
+    addRandomTile();
+    addRandomTile();
     render();
-    addRandomTile();
-    addRandomTile();
 }
 
 function addRandomTile() {
-    const emptyTiles = [];
+    const emptyCells = [];
     for (let r = 0; r < boardSize; r++) {
         for (let c = 0; c < boardSize; c++) {
             if (board[r][c] === 0) {
-                emptyTiles.push({ r, c });
+                emptyCells.push({ r, c });
             }
         }
     }
-
-    if (emptyTiles.length === 0) return; // No empty tiles available
-
-    const { r, c } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
-    board[r][c] = Math.random() < 0.9 ? 2 : 4; // 90% chance of 2, 10% chance of 4
+    if (emptyCells.length > 0) {
+        const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        board[r][c] = Math.random() < 0.9 ? 2 : 4;
+    }
 }
 
 function render() {
     boardElement.innerHTML = '';
+    boardElement.style.gridTemplateColumns = `repeat(${boardSize}, 100px)`;
     board.forEach(row => {
         row.forEach(value => {
             const tile = document.createElement('div');
             tile.className = 'tile';
             tile.textContent = value !== 0 ? value : '';
-            tile.style.backgroundColor = getTileColor(value);
+            tile.style.backgroundColor = value !== 0 ? `hsl(${Math.log2(value) * 50}, 70%, 50%)` : '#555';
             boardElement.appendChild(tile);
         });
     });
+    scoreElement.textContent = score;
+    highScoreElement.textContent = highScore;
+    saveGame();
 }
 
-function getTileColor(value) {
-    const colors = {
-        2: '#eee4da',
-        4: '#ede0c8',
-        8: '#f2b179',
-        16: '#f59563',
-        32: '#f67c5f',
-        64: '#f67c5f',
-        128: '#f9f86d',
-        256: '#f9f86d',
-        512: '#e6df73',
-        1024: '#e6df73',
-        2048: '#edc22e',
-        default: '#3c3a32'
-    };
-    return colors[value] || colors.default;
+function mergeTiles(row) {
+    let moved = false;
+    for (let r = 0; r < boardSize; r++) {
+        let newRow = row[r].filter(value => value); // Remove zeros
+        for (let c = 0; c < newRow.length - 1; c++) {
+            if (newRow[c] === newRow[c + 1]) {
+                newRow[c] *= 2;
+                score += newRow[c];
+                newRow[c + 1] = 0;
+                moved = true;
+            }
+        }
+        newRow = newRow.filter(value => value); // Remove zeros again
+        while (newRow.length < boardSize) {
+            newRow.push(0); // Fill with zeros
+        }
+        if (JSON.stringify(board[r]) !== JSON.stringify(newRow)) {
+            moved = true;
+            board[r] = newRow;
+        }
+    }
+    return moved;
 }
 
 function move(direction) {
     let moved = false;
-    switch (direction) {
-        case 'left':
+    if (direction === 'left') {
+        moved = mergeTiles(board);
+    } else if (direction === 'right') {
+        for (let r = 0; r < boardSize; r++) {
+            board[r] = board[r].reverse();
+        }
+        moved = mergeTiles(board);
+        for (let r = 0; r < boardSize; r++) {
+            board[r] = board[r].reverse();
+        }
+    } else if (direction === 'up') {
+        for (let c = 0; c < boardSize; c++) {
+            const column = [];
             for (let r = 0; r < boardSize; r++) {
-                const newRow = board[r].filter(num => num !== 0);
-                const mergedRow = [];
-                for (let c = 0; c < newRow.length; c++) {
-                    if (newRow[c] === newRow[c + 1]) {
-                        mergedRow.push(newRow[c] * 2);
-                        score += newRow[c] * 2;
-                        c++;
-                    } else {
-                        mergedRow.push(newRow[c]);
-                    }
-                }
-                while (mergedRow.length < boardSize) mergedRow.push(0);
-                for (let c = 0; c < boardSize; c++) {
-                    if (board[r][c] !== mergedRow[c]) {
-                        moved = true;
-                    }
-                    board[r][c] = mergedRow[c];
+                if (board[r][c] !== 0) column.push(board[r][c]);
+            }
+            let newColumn = column.filter(value => value);
+            for (let r = 0; r < newColumn.length - 1; r++) {
+                if (newColumn[r] === newColumn[r + 1]) {
+                    newColumn[r] *= 2;
+                    score += newColumn[r];
+                    newColumn[r + 1] = 0;
                 }
             }
-            break;
-        case 'right':
+            newColumn = newColumn.filter(value => value);
+            while (newColumn.length < boardSize) {
+                newColumn.push(0); // Fill with zeros
+            }
             for (let r = 0; r < boardSize; r++) {
-                const newRow = board[r].filter(num => num !== 0).reverse();
-                const mergedRow = [];
-                for (let c = 0; c < newRow.length; c++) {
-                    if (newRow[c] === newRow[c + 1]) {
-                        mergedRow.push(newRow[c] * 2);
-                        score += newRow[c] * 2;
-                        c++;
-                    } else {
-                        mergedRow.push(newRow[c]);
-                    }
-                }
-                while (mergedRow.length < boardSize) mergedRow.push(0);
-                mergedRow.reverse();
-                for (let c = 0; c < boardSize; c++) {
-                    if (board[r][c] !== mergedRow[c]) {
-                        moved = true;
-                    }
-                    board[r][c] = mergedRow[c];
+                board[r][c] = newColumn[r];
+            }
+        }
+        moved = true;
+    } else if (direction === 'down') {
+        for (let c = 0; c < boardSize; c++) {
+            const column = [];
+            for (let r = 0; r < boardSize; r++) {
+                if (board[r][c] !== 0) column.push(board[r][c]);
+            }
+            let newColumn = column.filter(value => value).reverse();
+            for (let r = 0; r < newColumn.length - 1; r++) {
+                if (newColumn[r] === newColumn[r + 1]) {
+                    newColumn[r] *= 2;
+                    score += newColumn[r];
+                    newColumn[r + 1] = 0;
                 }
             }
-            break;
-        case 'up':
-            for (let c = 0; c < boardSize; c++) {
-                const newColumn = [];
-                for (let r = 0; r < boardSize; r++) {
-                    if (board[r][c] !== 0) newColumn.push(board[r][c]);
-                }
-                const mergedColumn = [];
-                for (let r = 0; r < newColumn.length; r++) {
-                    if (newColumn[r] === newColumn[r + 1]) {
-                        mergedColumn.push(newColumn[r] * 2);
-                        score += newColumn[r] * 2;
-                        r++;
-                    } else {
-                        mergedColumn.push(newColumn[r]);
-                    }
-                }
-                while (mergedColumn.length < boardSize) mergedColumn.push(0);
-                for (let r = 0; r < boardSize; r++) {
-                    if (board[r][c] !== mergedColumn[r]) {
-                        moved = true;
-                    }
-                    board[r][c] = mergedColumn[r];
-                }
+            newColumn = newColumn.filter(value => value);
+            while (newColumn.length < boardSize) {
+                newColumn.push(0); // Fill with zeros
             }
-            break;
-        case 'down':
-            for (let c = 0; c < boardSize; c++) {
-                const newColumn = [];
-                for (let r = 0; r < boardSize; r++) {
-                    if (board[r][c] !== 0) newColumn.push(board[r][c]);
-                }
-                const mergedColumn = [];
-                for (let r = 0; r < newColumn.length; r++) {
-                    if (newColumn[r] === newColumn[r + 1]) {
-                        mergedColumn.push(newColumn[r] * 2);
-                        score += newColumn[r] * 2;
-                        r++;
-                    } else {
-                        mergedColumn.push(newColumn[r]);
-                    }
-                }
-                while (mergedColumn.length < boardSize) mergedColumn.push(0);
-                mergedColumn.reverse();
-                for (let r = 0; r < boardSize; r++) {
-                    if (board[r][c] !== mergedColumn[boardSize - 1 - r]) {
-                        moved = true;
-                    }
-                    board[r][c] = mergedColumn[boardSize - 1 - r];
-                }
+            for (let r = 0; r < boardSize; r++) {
+                board[r][c] = newColumn[boardSize - 1 - r];
             }
-            break;
+        }
+        moved = true;
     }
 
     if (moved) {
@@ -198,7 +166,6 @@ function updateHighScore() {
         highScore = score;
         localStorage.setItem(`highScore_${boardSize}`, highScore);
     }
-    highScoreElement.textContent = highScore; // Update high score display
 }
 
 function saveGame() {
@@ -222,7 +189,6 @@ function loadGame() {
 }
 
 function startGame() {
-    boardSize = parseInt(sizeSelect.value);
     menu.classList.remove('active');
     game.classList.add('active');
     initGame();
@@ -260,41 +226,40 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Touch controls for mobile devices
+let touchStartX = 0;
+let touchStartY = 0;
+
+document.addEventListener('touchstart', (event) => {
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+});
+
+document.addEventListener('touchend', (event) => {
+    if (!game.classList.contains('active')) return; // Only listen for touch events when the game is active
+    const touchEndX = event.changedTouches[0].clientX;
+    const touchEndY = event.changedTouches[0].clientY;
+
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0) {
+            move('right');
+        } else {
+            move('left');
+        }
+    } else {
+        if (deltaY > 0) {
+            move('down');
+        } else {
+            move('up');
+        }
+    }
+    checkGameOver();
+});
+
 playButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', resetGame);
 
-// Falling numbers effect
-function createFallingNumber() {
-    const numberElement = document.createElement('div');
-    numberElement.className = 'number';
-    numberElement.textContent = Math.floor(Math.random() * 10); // Random digit from 0 to 9
-
-    const xPosition = Math.random() * window.innerWidth; // Random x position
-    numberElement.style.left = `${xPosition}px`;
-    document.getElementById('falling-numbers').appendChild(numberElement);
-
-    const duration = Math.random() * 3 + 2; // Random duration between 2s and 5s
-    numberElement.style.animation = `fall ${duration}s linear forwards`;
-
-    // Remove number after animation ends
-    numberElement.addEventListener('animationend', () => {
-        numberElement.remove();
-    });
-}
-
-// Start generating falling numbers
-setInterval(createFallingNumber, 300); // Create a new falling number every 300ms
-
-// Add CSS animation for falling numbers
-const style = document.createElement('style');
-style.textContent = `
-@keyframes fall {
-    to {
-        transform: translateY(100vh);
-    }
-}
-`;
-document.head.appendChild(style);
-
-// Load game state if exists
 loadGame();
