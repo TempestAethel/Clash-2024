@@ -1,10 +1,28 @@
-<html>
-    <head>
-    <script src="script.js" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.8.0/lib/p5.js" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/gh/quinton-ashley/p5play@3.16.1/planck.min.js; https://cdn.jsdelivr.net/gh/quinton-ashley/p5play@3.16.1/p5play.min.js" type="text/javascript"></script>
-    </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Conquest</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
 <body>
+    <header>
+        <h1>Coin Conquest</h1>
+    </header>
+    <div id="game-container">
+        <div id="score-display">Score: 0</div>
+        <div id="timer-display">Time Left: 600</div>
+        <button id="play-pause-btn">Play</button>
+        <button id="plead-btn" style="display:none;">Plead for Coins</button>
+        <button id="reset-btn">Reset</button>
+        <div id="coins-container"></div>
+    </div>
+    <div id="prestige-options" style="display:none;">
+        <h2>Prestige Options</h2>
+        <button id="score-multiplier-btn">Double Score Multiplier</button>
+        <button id="extra-time-btn">Extra 2 Minutes</button>
+    </div>
+    <script src="script.js"></script>
 </body>
-
 </html>
