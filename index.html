@@ -42,8 +42,28 @@
             top: 20px;
             right: 20px;
         }
+        .menu, .game {
+            display: none;
+        }
+        .menu.active, .game.active {
+            display: block;
+        }
         #size-select {
             margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #play-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #00cc00; /* Green color for play button */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #play-button:hover {
+            background-color: #00ff00; /* Lighter green on hover */
         }
         #reset-button {
             margin-top: 10px;
@@ -62,21 +82,29 @@
 </head>
 <body>
     <h1>Clash 2024</h1>
-    <select id="size-select">
-        <option value="4">4x4</option>
-        <option value="5">5x5</option>
-        <option value="6">6x6</option>
-    </select>
-    <div class="high-score">High Score: <span id="high-score">0</span></div>
-    <div class="board" id="board"></div>
-    <button id="reset-button">Reset Game</button>
-    <div class="score">Score: <span id="score">0</span></div>
+    <div class="menu active" id="menu">
+        <select id="size-select">
+            <option value="4">4x4</option>
+            <option value="5">5x5</option>
+            <option value="6">6x6</option>
+        </select>
+        <button id="play-button">Play</button>
+    </div>
+    <div class="game" id="game">
+        <div class="high-score">High Score: <span id="high-score">0</span></div>
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="board" id="board"></div>
+        <button id="reset-button">Reset Game</button>
+    </div>
     <script>
         const boardElement = document.getElementById('board');
         const scoreElement = document.getElementById('score');
         const highScoreElement = document.getElementById('high-score');
         const sizeSelect = document.getElementById('size-select');
+        const playButton = document.getElementById('play-button');
         const resetButton = document.getElementById('reset-button');
+        const menu = document.getElementById('menu');
+        const game = document.getElementById('game');
         let score = 0;
         let highScore = 0;
         let boardSize = parseInt(sizeSelect.value);
@@ -225,6 +253,7 @@
                 }
             }
             alert('Game Over! Your score: ' + score);
+            updateHighScore();
             return true; // No valid moves left
         }
 
@@ -257,11 +286,22 @@
             }
         }
 
+        function startGame() {
+            menu.classList.remove('active');
+            game.classList.add('active');
+            initGame();
+        }
+
         function resetGame() {
-            initGame(); // Reset the game board and score
+            menu.classList.add('active');
+            game.classList.remove('active');
+            score = 0; // Reset the score for the new game
+            scoreElement.textContent = score;
+            highScoreElement.textContent = highScore; // Keep the high score visible
         }
 
         document.addEventListener('keydown', (e) => {
+            if (!game.classList.contains('active')) return; // Only listen for key events when the game is active
             if (e.repeat) return; // Prevent multiple moves on hold
             switch (e.key) {
                 case 'ArrowLeft':
@@ -293,6 +333,7 @@
         });
 
         document.addEventListener('touchend', (event) => {
+            if (!game.classList.contains('active')) return; // Only listen for touch events when the game is active
             const touchEndX = event.changedTouches[0].clientX;
             const touchEndY = event.changedTouches[0].clientY;
 
@@ -315,10 +356,7 @@
             checkGameOver();
         });
 
-        sizeSelect.addEventListener('change', () => {
-            initGame(); // Reset the board without clearing local storage
-        });
-
+        playButton.addEventListener('click', startGame);
         resetButton.addEventListener('click', resetGame);
 
         loadGame();
