@@ -1,152 +1,136 @@
-// Global variables
-let score = 0;
-let timer = 600;
-let play = false;
-let bronzeClicks = 0;
-let silverClicks = 0;
-let goldClicks = 0;
-let platinumClicks = 0;
-let titaniumClicks = 0;
-let diamondClicks = 0;
-let coins = {};
-let autoClickers = [];
-const coinTypes = {
-    "B": { value: 1, clicks: 1000, next: "S", color: "brown" },
-    "S": { value: 5, clicks: 1000, next: "G", color: "silver" },
-    "G": { value: 10, clicks: 1000, next: "PL", color: "gold" },
-    "PL": { value: 50, clicks: 1000, next: "TI", color: "platinum" },
-    "TI": { value: 500, clicks: 1000, next: "D", color: "gray" },
-    "D": { value: 1000, clicks: 1000, next: null, color: "blue" }
-};
+const boardSizeSelect = document.getElementById('board-size');
+const playButton = document.getElementById('play-button');
+const gameBoard = document.getElementById('game-board');
+const scoreValue = document.getElementById('score-value');
 
-document.getElementById('play-pause-btn').addEventListener('click', toggleGame);
-document.getElementById('plead-btn').addEventListener('click', generateCoin);
-document.getElementById('reset-btn').addEventListener('click', resetGame);
-document.getElementById('score-multiplier-btn').addEventListener('click', doubleScoreMultiplier);
-document.getElementById('extra-time-btn').addEventListener('click', addExtraTime);
+let board, score;
 
-function toggleGame() {
-    play = !play;
-    this.innerText = play ? 'Pause' : 'Play';
-    document.getElementById('plead-btn').style.display = play ? 'inline' : 'none';
+playButton.addEventListener('click', () => {
+    const size = parseInt(boardSizeSelect.value);
+    setupBoard(size);
+    startGame(size);
+});
+
+function setupBoard(size) {
+    gameBoard.innerHTML = '';
+    gameBoard.style.gridTemplateColumns = `repeat(${size}, 100px)`;
+    gameBoard.style.gridTemplateRows = `repeat(${size}, 100px)`;
+    gameBoard.classList.remove('hidden');
     
-    if (play) {
-        startTimer();
-    } else {
-        clearInterval(autoClickers);
-    }
-}
-
-function startTimer() {
-    const timerInterval = setInterval(() => {
-        if (timer <= 0) {
-            clearInterval(timerInterval);
-            endGame();
-        } else {
-            timer--;
-            document.getElementById('timer-display').innerText = `Time Left: ${timer}`;
-        }
-    }, 1000);
-}
-
-function generateCoin() {
-    const coinType = "B";
-    const coin = document.createElement('div');
-    coin.className = 'coin';
-    coin.style.backgroundColor = coinTypes[coinType].color;
-    coin.innerText = coinType;
-    coin.style.position = 'absolute';
-    coin.style.top = `${Math.random() * (window.innerHeight - 50)}px`;
-    coin.style.left = `${Math.random() * (window.innerWidth - 50)}px`;
-    coin.addEventListener('click', () => clickCoin(coinType, coin));
-    document.getElementById('coins-container').appendChild(coin);
-    coins[coinType] = (coins[coinType] || 0) + 1;
-    manageCoins();
-}
-
-function clickCoin(type, coinElement) {
-    score += coinTypes[type].value;
-    document.getElementById('score-display').innerText = `Score: ${score}`;
-    coins[type]++;
-    if (coins[type] >= coinTypes[type].clicks) {
-        upgradeCoin(type, coinElement);
-    }
-}
-
-function upgradeCoin(type, coinElement) {
-    const nextType = coinTypes[type].next;
-    if (nextType) {
-        coins[type] = 0; // Reset click count for current type
-        coinElement.innerText = nextType;
-        coinElement.style.backgroundColor = coinTypes[nextType].color;
-        coinElement.onclick = () => clickCoin(nextType, coinElement);
-    }
-}
-
-function manageCoins() {
-    const coinDivs = document.getElementById('coins-container').children;
-    const coinCounts = {};
-    
-    for (let coin of coinDivs) {
-        const type = coin.innerText;
-        coinCounts[type] = (coinCounts[type] || 0) + 1;
-        if (coinCounts[type] > 5) {
-            coin.remove(); // Remove excess coins
-        }
-    }
-}
-
-function endGame() {
-    play = false;
-    document.getElementById('play-pause-btn').innerText = 'Play';
-    document.getElementById('plead-btn').style.display = 'none';
-    document.getElementById('prestige-options').style.display = 'block';
-}
-
-function resetGame() {
+    board = Array.from({ length: size }, () => Array(size).fill(0));
     score = 0;
-    timer = 600;
-    bronzeClicks = 0;
-    silverClicks = 0;
-    goldClicks = 0;
-    platinumClicks = 0;
-    titaniumClicks = 0;
-    diamondClicks = 0;
-    coins = {};
-    document.getElementById('score-display').innerText = `Score: ${score}`;
-    document.getElementById('timer-display').innerText = `Time Left: ${timer}`;
-    document.getElementById('prestige-options').style.display = 'none';
-    document.getElementById('coins-container').innerHTML = '';
-    localStorage.clear();
+    updateScore();
+    
+    addRandomTile();
+    addRandomTile();
+    drawBoard();
 }
 
-function doubleScoreMultiplier() {
-    // Logic for double score multiplier
-    score *= 2;
-    document.getElementById('score-display').innerText = `Score: ${score}`;
-    resetGame(); // Reset after selecting prestige option
+function addRandomTile() {
+    let emptyTiles = [];
+    board.forEach((row, r) => row.forEach((tile, c) => {
+        if (tile === 0) emptyTiles.push({ r, c });
+    }));
+    
+    const { r, c } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
+    board[r][c] = Math.random() < 0.9 ? 2 : 4;
 }
 
-function addExtraTime() {
-    timer += 120; // Add 2 minutes
-    resetGame(); // Reset after selecting prestige option
+function drawBoard() {
+    board.forEach(row => {
+        row.forEach(tile => {
+            const tileDiv = document.createElement('div');
+            tileDiv.classList.add('tile', `tile-${tile}`);
+            tileDiv.innerText = tile ? tile : '';
+            gameBoard.appendChild(tileDiv);
+        });
+    });
 }
 
-// Load from local storage if available
-function loadGameState() {
-    const savedScore = localStorage.getItem('score');
-    const savedCoins = JSON.parse(localStorage.getItem('coins'));
-    if (savedScore) score = parseInt(savedScore);
-    if (savedCoins) coins = savedCoins;
-
-    document.getElementById('score-display').innerText = `Score: ${score}`;
+function updateScore() {
+    scoreValue.innerText = score;
 }
 
-// Save the game state
-function saveGameState() {
-    localStorage.setItem('score', score);
-    localStorage.setItem('coins', JSON.stringify(coins));
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowUp' || event.key === 'w') {
+        moveUp();
+    } else if (event.key === 'ArrowDown' || event.key === 's') {
+        moveDown();
+    } else if (event.key === 'ArrowLeft' || event.key === 'a') {
+        moveLeft();
+    } else if (event.key === 'ArrowRight' || event.key === 'd') {
+        moveRight();
+    }
+});
+
+function moveUp() {
+    // Logic for moving tiles up
+    let moved = false;
+    for (let c = 0; c < board.length; c++) {
+        let stack = [];
+        for (let r = 0; r < board.length; r++) {
+            if (board[r][c] !== 0) {
+                if (stack.length && stack[stack.length - 1] === board[r][c]) {
+                    stack[stack.length - 1] *= 2;
+                    score += stack[stack.length - 1];
+                    moved = true;
+                } else {
+                    stack.push(board[r][c]);
+                }
+            }
+        }
+        for (let r = 0; r < board.length; r++) {
+            board[r][c] = stack[r] || 0;
+        }
+    }
+    if (moved) {
+        addRandomTile();
+        drawBoard();
+        updateScore();
+    }
 }
 
-window.addEventListener('beforeunload', saveGameState);
-window.addEventListener('load', loadGameState);
+// Implement moveDown, moveLeft, moveRight with similar logic
+
+function moveDown() {
+    // Logic for moving tiles down (similar to moveUp)
+}
+
+function moveLeft() {
+    // Logic for moving tiles left
+}
+
+function moveRight() {
+    // Logic for moving tiles right
+}
+
+// Swipe controls for mobile
+let touchstartX = 0;
+let touchstartY = 0;
+
+gameBoard.addEventListener('touchstart', (event) => {
+    touchstartX = event.changedTouches[0].screenX;
+    touchstartY = event.changedTouches[0].screenY;
+});
+
+gameBoard.addEventListener('touchend', (event) => {
+    const touchendX = event.changedTouches[0].screenX;
+    const touchendY = event.changedTouches[0].screenY;
+
+    const diffX = touchendX - touchstartX;
+    const diffY = touchendY - touchstartY;
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0) {
+            moveRight();
+        } else {
+            moveLeft();
+        }
+    } else {
+        if (diffY > 0) {
+            moveDown();
+        } else {
+            moveUp();
+        }
+    }
+});
