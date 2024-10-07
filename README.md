@@ -4,7 +4,7 @@ Experience a fresh classic 2024 tile merging game! Dive into this knock-off that
 ## Features
 
 ### 1. Dynamic Board Sizes 📏
-- **Flexible Grid Options**: Choose from **4x4**, **5x5**, or **6x6** grids. Each size presents unique challenges, allowing players to select their preferred difficulty level.
+- **Flexible Grid Options**: Choose from **3x3** , **4x4**, **5x5**, or **6x6** grids. Each size presents unique challenges, allowing players to select their preferred difficulty level.
 
 ### 2. Tile Merging Mechanics 🔄
 - **Strategic Merging**: Merge identical tiles to form higher-value tiles. The gameplay focuses on combining **2s** into **4s**, **4s** into **8s**, and beyond, making every decision impactful.
@@ -24,20 +24,20 @@ Experience a fresh classic 2024 tile merging game! Dive into this knock-off that
 ### 7. Game Reset Option 🔄
 - **Fresh Start**: Easily reset the game with the **Reset Game** button, allowing players to explore new strategies without the burden of previous scores.
 
-### 8. Game Over Alerts 🚫
+### 8. Animated Background 🌈
+- **Dynamic Gradient Animation**: Immerse yourself in a vibrant animated background with a shifting gradient that enhances the visual experience of Clash 2024!
+
+### 9. Game Over Alerts 🚫
 - **Clear Notifications**: When no valid moves are left, a user-friendly alert notifies players of game over, displaying the final score and prompting for a reset.
 
-### 9. Local Storage Save 💾
+### 10. Local Storage Save 💾
 - **Automatic Progress Saving**: Game progress and high scores are automatically saved using local storage, enabling players to pick up right where they left off.
 
-### 10. Engaging Visuals 🌈
+### 11. Engaging Visuals 🌈
 - **Vibrant Graphics**: The game features colorful tiles and smooth animations that enhance the overall experience, making each merge visually satisfying.
 
-### 11. User-Friendly Interface 🖥️
+### 12. User-Friendly Interface 🖥️
 - **Clean Layout**: The interface is designed for easy navigation, ensuring that players can focus on gameplay without unnecessary distractions.
-
-### 12. Sound Effects 🔊
-- **Immersive Audio**: Engaging sound effects accompany each tile merge and move, enriching the gameplay experience and providing auditory feedback.
 
 ### 13. Touch Controls for Mobile ✋
 - **Seamless Touch Experience**: Intuitive touch gestures allow players to swipe and move tiles. Note that these controls work but are not fully optimized for mobile gameplay.
