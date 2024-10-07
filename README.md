@@ -1,5 +1,6 @@
 # Clash 2024 - Tile Merging Game 🎮
-
+Experience a fresh classic 2024 tile merging game! Dive into this knock-off that challenges your strategy and puzzle-solving skills!
+👉 **[Play Here](https://tempestaethel.github.io/Clash-2024/)**
 ## Features
 
 ### 1. Dynamic Board Sizes 📏
