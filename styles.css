@@ -4,9 +4,23 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh; /* Full viewport height */
-    background-color: #1c1c1c; /* Dark background color */
+    background: linear-gradient(-45deg, #004040, #008080, #800080, #228B22); /* Gradient background */
+    background-size: 400% 400%; /* Size for the gradient animation */
+    animation: gradient 15s ease infinite; /* Gradient animation */
     color: white; /* Text color */
     font-family: 'Arial', sans-serif; /* Default font */
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 h1 {
