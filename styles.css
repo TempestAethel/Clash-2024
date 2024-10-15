@@ -9,6 +9,7 @@ body {
     animation: gradient 15s ease infinite; /* Gradient animation */
     color: white; /* Text color */
     font-family: 'Arial', sans-serif; /* Default font */
+    
 }
 
 @keyframes gradient {
@@ -27,12 +28,13 @@ h1 {
     margin-bottom: 20px; /* Space below the header */
     font-size: 48px; /* Header font size */
     color: white; /* Text color */
-    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8); /* Shadow for depth */
+    text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.8); /* Shadow for depth */
     font-family: 'Impact', sans-serif; /* Bold font for emphasis */
-    border: 2px solid cyan; /* Cyan border around the header */
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.5)); /* Black gradient background */
     padding: 10px; /* Inner padding */
     border-radius: 10px; /* Rounded corners for the header */
+    margin: 20px 0;
+    color: #00bcd4; /* Cyan color */
+    text-shadow: 0 0 10px #00bcd4;
 }
 
 .board {
